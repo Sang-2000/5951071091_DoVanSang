@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset='utf-8'>
+    <title>Google Maps API Demo</title>
+
+    <style type="text/css">
+        #map {
+            height: 550px;
+            width: 100%;
+            border: 2px solid red;
+        }
+    </style>
+
+    <script>
+        // Tọa độ GTVT-CS2 -> Vĩ độ, Kinh độ : 10.84606, 106.79453
+        const gtvt_cs2 = {
+            lat: 10.846008,
+            lng: 106.794544,
+        };
+        // Tọa độ Nhà trọ D1/9 -> Vĩ độ, Kinh độ : 10.848509, 106.791662
+        const myHome = {
+            lat: 10.848525,
+            lng: 106.791628,
+        };
+
+        function CenterControl(controlDiv, map) {
+            const controlUI = document.createElement("div");
+            controlUI.style.backgroundColor = "#fff";
+            controlUI.style.border = "2px solid #fff";
+            controlUI.style.borderRadius = "3px";
+            controlUI.style.boxShadow = "0 2px 6px rgba(0,0,0,.3)";
+            controlUI.style.cursor = "pointer";
+            controlUI.style.marginBottom = "22px";
+            controlUI.style.textAlign = "center";
+            controlUI.title = "Ấn vào để trở về GTVT-CS2";
+            controlDiv.appendChild(controlUI);
+            const controlText = document.createElement("div");
+            controlText.style.color = "rgb(25,25,25)";
+            controlText.style.fontFamily = "Roboto,Arial,sans-serif";
+            controlText.style.fontSize = "16px";
+            controlText.style.lineHeight = "38px";
+            controlText.style.paddingLeft = "5px";
+            controlText.style.paddingRight = "5px";
+            controlText.innerHTML = "Phân hiệu GTVT tại Tp.HCM",
+                controlUI.appendChild(controlText);
+            controlUI.addEventListener("click", () => {
+                map.setCenter(gtvt_cs2);
+            });
+        }
+
+
+        function initMap() {
+            const map = new google.maps.Map(document.getElementById("map"), {
+                zoom: 16, // tăng/giảm độ phóng của bản đồ khi mới vào
+                center: gtvt_cs2, // căn giữa vị trí với tọa độ lat, lng
+                streetViewControl: true, // hiển thị thông tin đường phố
+                scaleControl: true, // hiển thị thanh khoảng cách
+                // thiết lập mapTypeControl
+                mapTypeControl: true, // hiển thị lựa chọn kiểu bản đồ
+                mapTypeControlOptions: {
+                    mapTypeIds: [google.maps.MapTypeId.ROADMAP, google.maps.MapTypeId.HYBRID], // kiểu bản đồ
+                    style: google.maps.MapTypeControlStyle.DROPDOWN_MENU, // thả xuống lựa chọn
+                    position: google.maps.ControlPosition.RIGHT_TOP // vị trí hiển thị mapTypeControl trên bản đồ
+                },
+                // thiết lập zoomControl
+                zoomControl: true, // hiển thị thanh + / - (phóng to / thu nhỏ) bản đồ
+                zoomControlOptions: {
+                    position: google.maps.ControlPosition.RIGHT_BOTTOM // vị trí hiển thị zoomControl trên bản đồ
+                },
+                // thiết lập fullscreenControl
+                fullscreenControl: true, // hiển thị lựa chọn chế độ toàn màn hình
+                fullscreenControlOptions: {
+                    position: google.maps.ControlPosition.BOTTOM_RIGHT // vị trí hiển thị fullscreenControl trên bản đồ
+                },
+            });
+
+            // tạo icon hiển thị UTC2 trên bản đồ
+            const iconUTC2 = {
+                url: "https://lh3.googleusercontent.com/proxy/xJwbB8faH4AoGCKky91FKbbl7KO3vP7ZRwRNpHLyFRlYw_Tq32BUKifCskUzkC9DODJf37urK0iuDOt7O0X14x6Q2enjd8jlL3HdawdE5VDYdpVUNQ",
+                scaledSize: new google.maps.Size(30, 30), // scaledSize -> kích thước thu nhỏ
+                origin: new google.maps.Point(0, 0), // origin     -> gốc / tâm
+                anchor: new google.maps.Point(0, 0) // anchor      -> neo / giữ
+            };
+
+            // đánh dấu(marker) vị trí UTC2
+            const markerUTC2 = new google.maps.Marker({
+                position: gtvt_cs2,
+                title: "Click để xem thông tin !",
+                label: "GTVT-CS2",
+                map: map,
+                draggable: true,
+                icon: iconUTC2,
+                animation: google.maps.Animation.DROP,
+            });
+
+
+            // tạo icon hiển thị Nhà trọ trên bản đồ
+            const iconMyHome = {
+                url: "https://edemy.edu.vn/wp-content/uploads/2017/08/home-icon.png",
+                scaledSize: new google.maps.Size(30, 30), // scaledSize -> kích thước thu nhỏ
+                origin: new google.maps.Point(0, 0), // origin     -> gốc / tâm
+                anchor: new google.maps.Point(0, 0) // anchor      -> neo / giữ
+            };
+
+            // đánh dấu(marker) vị trí Nhà trọ
+            const markerMyHome = new google.maps.Marker({
+                position: myHome,
+                title: "Click để xem thông tin !",
+                label: "Nhà trọ D1/9",
+                map: map,
+                draggable: true,
+                icon: iconMyHome,
+                animation: google.maps.Animation.DROP,
+            });
+
+
+            // // Vẽ hình tròn trên map
+            const cityCircle = new google.maps.Circle({
+                strokeColor: "#00FF00",
+                strokeOpacity: 0.8,
+                strokeWeight: 2,
+                fillColor: "#4286F4",
+                fillOpacity: 0.35,
+                map,
+                center: gtvt_cs2,
+                radius: 1500,
+            });
+
+
+            // hiển thị khi click vào điểm được chọn
+            const infowindowUTC2 = new google.maps.InfoWindow({
+                content: 'Hello UTC2!' +
+                    '</br> Phân hiệu Đại học Giao Thông Vận Tải tại Thành phố Hồ Chí Minh'
+            });
+            google.maps.event.addListener(markerUTC2, "click", function() {
+                infowindowUTC2.open(map, markerUTC2);
+            });
+
+
+            const infowindowHome = new google.maps.InfoWindow({
+                content: 'Hello !!!' +
+                    '</br> Họ Tên: Đỗ Văn Sáng ' +
+                    '</br> MSV: 5951071091 ' +
+                    '</br> Email: 5951071091@stutc2.edu.vn'
+            });
+            google.maps.event.addListener(markerMyHome, "click", function() {
+                infowindowHome.open(map, markerMyHome);
+            });
+
+
+
+            // Vẽ Polyline trên Map - vẽ đường thẳng từ Nhà trọ -> UTC2
+            const flightPlanCoordinates = [{
+                lat: 10.846008,
+                lng: 106.794544,
+            }, {
+                lat: 10.848509,
+                lng: 106.791662,
+            }, ];
+            const flightPath = new google.maps.Polyline({
+                path: flightPlanCoordinates,
+                geodesic: true,
+                strokeColor: "#FF0000",
+                strokeOpacity: 1.0,
+                strokeWeight: 2,
+            });
+            flightPath.setMap(map);
+
+
+
+            // tìm đườn đi từ UTC2 đến Nhà trọ
+            // position -> tọa độ điểm xuất phát, roomLatlng -> tọa độ điểm đến
+            // const position = new google.maps.LatLng(10.846008, 106.794544, ); // Tọa độ điểm xuất phát
+            // const roomLatlng = new google.maps.LatLng(10.848509, 106.791662); // Tọa độ điểm đễn
+            const request = {
+                origin: myHome,
+                destination: gtvt_cs2,
+                travelMode: google.maps.TravelMode.DRIVING
+            };
+        }
+    </script>
+</head>
+
+<body>
+    <h3>Map Demo</h3>
+    <div id="map">
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
+
+        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDNI_ZWPqvdS6r6gPVO50I4TlYkfkZdXh8&callback=initMap&libraries=&v=weekly" async=""></script>
+
+        <!-- API Key: AIzaSyBc6HMX9elgKJLmXAqDQSvof9BZudhzBR8 -->
+
+        <!-- src="https://maps.googleapis.com/maps/api/js?key=APIKey&callback=initMap&libraries=&v=weekly" -->
+    </div>
+</body>
+
+</html>
